@@ -1,0 +1,75 @@
+.add-user-form {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.dropzone {
+  background-color: #f0f0f0;
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.dropzone.active {
+  background-color: #e7f3ff;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.8rem;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  margin-top: 1rem;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.button.valid {
+  background-color: #28a745;
+}
+
+.button.invalid {
+  background-color: #dc3545;
+}
+
+input {
+  margin-bottom: 10px; /* Space between label and input */
+  padding: 8px; /* Padding for the input */
+  width: 100%; /* Make the input full width */
+  transition: border-color 0.3s ease;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+input:focus {
+  border-color: #007bff;
+  outline: none;
+}
