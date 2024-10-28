@@ -134,9 +134,14 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onAddUser }) => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCountryCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const sanitizedValue = e.target.value.replace(/\D/g, "");
     setCountryCode(sanitizedValue);
+  };
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = e.target.value.replace(/\D/g, "");
+    setPhoneNumber(sanitizedValue);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -193,7 +198,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onAddUser }) => {
             <input
               type="number"
               value={countryCode}
-              onChange={handleChange}
+              onChange={handleCountryCodeChange}
               onKeyDown={handleKeyDown}
               placeholder="Country Code"
               style={{ width: "100px" }}
@@ -201,7 +206,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onAddUser }) => {
             <input
               type="number"
               value={phoneNumber}
-              onChange={handleChange}
+              onChange={handlePhoneNumberChange}
               onKeyDown={handleKeyDown}
               placeholder="Phone Number"
               style={{ display: "flex", width: "100%" }}
