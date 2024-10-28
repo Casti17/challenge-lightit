@@ -1,12 +1,11 @@
-// Modal.tsx
 import React from "react";
 import "./modal.css";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  message: string | string[]; // Can be a string or an array of error messages
-  messageType: "success" | "error"; // To differentiate between success and error states
+  message: string | string[];
+  messageType: "success" | "error";
 }
 
 const Modal: React.FC<ModalProps> = ({

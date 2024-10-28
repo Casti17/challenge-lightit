@@ -8,7 +8,7 @@ interface User {
   email: string;
   phoneNumber: string;
   countryCode: string;
-  documentPhoto: File;
+  documentPhotoPath: string;
 }
 
 interface UserListProps {
@@ -16,10 +16,13 @@ interface UserListProps {
 }
 
 const UserList: React.FC<UserListProps> = ({ users }) => {
-  const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
+  const [expandedCardId, setExpandedCardId] = React.useState<number | null>(
+    null
+  );
 
-  const toggleExpand = (id: number) => {
-    setExpandedCardId((prevId) => (prevId === id ? null : id)); // Toggle between expanding and collapsing
+  const toggleExpand = (id: number, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setExpandedCardId((prevId) => (prevId === id ? null : id));
   };
 
   return (
@@ -32,8 +35,9 @@ const UserList: React.FC<UserListProps> = ({ users }) => {
             <UserCard
               key={user.id}
               user={user}
-              isExpanded={user.id === expandedCardId}
-              onToggleExpand={() => toggleExpand(user.id)}
+              isExpanded={expandedCardId === user.id}
+              onToggleExpand={(event) => toggleExpand(user.id, event)}
+              className={expandedCardId === user.id ? "expanded" : ""}
             />
           ))}
         </div>

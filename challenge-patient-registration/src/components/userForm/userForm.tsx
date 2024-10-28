@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import "./userForm.css";
 import Modal from "../modal/modal";
-import { registerPatient } from "../../services/registerService";
+import { registerPatient } from "../../services/patientsService";
 
 interface AddUserFormProps {
   onAddUser: (
@@ -24,15 +24,18 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onAddUser }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success"
-  ); // Track modal state
+  );
+  const [isLoading, setIsLoading] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file && file.type === "image/jpeg") {
       setDocumentPhoto(file);
-      setErrorMessages([]); // Clear errors when valid file is added
+      setErrorMessages((prev) =>
+        prev.filter((msg) => msg !== "Only .jpg images are allowed")
+      );
     } else {
-      setErrorMessages(["Only .jpg images are allowed"]);
+      setErrorMessages((prev) => [...prev, "Only .jpg images are allowed"]);
     }
   }, []);
 
@@ -42,35 +45,71 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onAddUser }) => {
     multiple: false,
   });
 
+  const validateFields = () => {
+    const errors: string[] = [];
+    if (!name) {
+      errors.push("Name is required");
+    } else if (!/^[a-zA-Z ]+$/.test(name)) {
+      errors.push("Name must contain only letters");
+    }
+    if (!email || !email.endsWith("@gmail.com")) {
+      errors.push("Email must be a @gmail.com address");
+    }
+    if (!phoneNumber) {
+      errors.push("Phone number is required");
+    }
+    if (!countryCode) {
+      errors.push("Country code is required");
+    }
+    if (!documentPhoto) {
+      errors.push("Document photo is required");
+    }
+
+    setErrorMessages(errors);
+    return errors.length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const errors: string[] = [];
-
-    // Validation checks
-    if (!name) errors.push("Name is required");
-    if (!email || !email.endsWith("@gmail.com"))
-      errors.push("Email must be a @gmail.com address");
-    if (!phoneNumber) errors.push("Phone number is required");
-    if (!countryCode) errors.push("Country code is required");
-    if (!documentPhoto) errors.push("Document photo is required");
-
-    // Show errors if there are any
-    if (errors.length > 0) {
-      setErrorMessages(errors);
+    setIsLoading(true);
+    if (!validateFields()) {
       setMessageType("error");
       setIsModalOpen(true);
+      setIsLoading(false);
       return;
     }
 
-    // Clear errors and submit user
     try {
-      /*const data = await registerPatient(
+      const newUser = await createUser();
+
+      const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
+
+      localStorage.setItem(
+        "users",
+        JSON.stringify([...existingUsers, newUser])
+      );
+
+      setMessageType("success");
+      setIsModalOpen(true);
+      resetUserForm();
+      setIsLoading(false);
+    } catch (error) {
+      setMessageType("error");
+      setErrorMessages(["An error occurred while adding the user."]);
+      setIsModalOpen(true);
+      setIsLoading(false);
+      return;
+    }
+
+    async function createUser() {
+      const data = await registerPatient(
         name,
         email,
         phoneNumber,
         countryCode,
         documentPhoto!
-      );*/
+      );
+
       if (documentPhoto) {
         onAddUser(name, email, phoneNumber, countryCode, documentPhoto);
       }
@@ -82,39 +121,40 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onAddUser }) => {
         countryCode,
         documentPhoto: documentPhoto ? URL.createObjectURL(documentPhoto) : "",
       };
+      return newUser;
+    }
 
-      // Retrieve existing users from localStorage
-      const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-
-      // Save the new user in localStorage
-      localStorage.setItem(
-        "users",
-        JSON.stringify([...existingUsers, newUser])
-      );
-
-      setMessageType("success");
-      setIsModalOpen(true); // Show success modal
-
+    function resetUserForm() {
+      setErrorMessages([]);
       setName("");
       setCountryCode("");
       setEmail("");
       setPhoneNumber("");
       setDocumentPhoto(null);
-    } catch (error) {
-      setErrorMessages([
-        (error as Error).message ||
-          "Failed to register patient. Please try again.",
-      ]);
-      setMessageType("error");
-      setIsModalOpen(true);
     }
-    // Optionally reset form fields after submission
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = e.target.value.replace(/\D/g, "");
+    setCountryCode(sanitizedValue);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      !/[0-9]/.test(e.key) &&
+      e.key !== "Backspace" &&
+      e.key !== "Delete" &&
+      e.key !== "ArrowLeft" &&
+      e.key !== "ArrowRight"
+    ) {
+      e.preventDefault();
+    }
   };
 
   return (
     <>
       <form onSubmit={handleSubmit} className="add-user-form">
-        <div>
+        <div className="form-group">
           <label>Name:</label>
           <input
             type="text"
@@ -122,9 +162,17 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onAddUser }) => {
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your name"
           />
+          {errorMessages.includes("Name is required") && (
+            <p className="error-message animate">Name is required</p>
+          )}
+          {errorMessages.includes("Name must contain only letters") && (
+            <p className="error-message animate">
+              Name must contain only letters
+            </p>
+          )}
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Email:</label>
           <input
             type="email"
@@ -132,24 +180,40 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onAddUser }) => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
           />
+          {errorMessages.includes("Email must be a @gmail.com address") && (
+            <p className="error-message animate">
+              Email must be a @gmail.com address
+            </p>
+          )}
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Phone Number:</label>
-          <div style={{ display: "flex", gap: "10px" }}>
+          <div style={{ display: "flex", gap: "10px", width: "100%" }}>
             <input
-              type="text"
+              type="number"
               value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
               placeholder="Country Code"
               style={{ width: "100px" }}
             />
             <input
-              type="text"
+              type="number"
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
               placeholder="Phone Number"
+              style={{ display: "flex", width: "100%" }}
             />
+          </div>
+          <div style={{ display: "flex", gap: "30px" }}>
+            {errorMessages.includes("Country code is required") && (
+              <p className="error-message animate">Code is required</p>
+            )}
+            {errorMessages.includes("Phone number is required") && (
+              <p className="error-message animate">Phone number is required</p>
+            )}
           </div>
         </div>
 
@@ -163,11 +227,36 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onAddUser }) => {
             </p>
           )}
         </div>
+        {errorMessages.includes("Only .jpg images are allowed") && (
+          <p className="error-message animate">Only .jpg images are allowed</p>
+        )}
 
-        <button type="submit">Add User</button>
+        {documentPhoto && (
+          <div className="document-photo-preview-container">
+            <img
+              className="document-photo-preview"
+              src={URL.createObjectURL(documentPhoto)}
+              alt={documentPhoto.name}
+              width={100}
+              height={100}
+            />
+            <p style={{ marginTop: "2px" }}>{documentPhoto.name}</p>
+          </div>
+        )}
+
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? (
+            <div className="spinner">
+              <div className="spinner-dot"></div>
+              <div className="spinner-dot"></div>
+              <div className="spinner-dot"></div>
+            </div>
+          ) : (
+            "Add User"
+          )}
+        </button>
       </form>
 
-      {/* Modal for success/error messages */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

@@ -1,10 +1,17 @@
+.user-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
 .user-list {
-  display: flex;
-  flex-wrap: wrap; /* Allows cards to wrap on smaller screens */
-  justify-content: flex-start; /* Align cards to the start (left) */
-  gap: 20px; /* Add space between the cards */
-  padding: 10px;
-  width: 100%;
+  padding: 20px;
+}
+
+.empty-state {
+  font-size: 18px;
+  text-align: center;
 }
 
 .empty-state {
@@ -13,32 +20,30 @@
   margin-top: 20px;
 }
 
-/* Base styles for the user card */
 .user-card {
   display: flex;
-  flex-direction: column; /* Keep content vertical within each card */
+  flex-direction: column;
   background-color: #f9f9f9;
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 1.5rem;
+  margin-bottom: 1rem;
   overflow: hidden;
   transition: all 0.3s ease-in-out;
   cursor: pointer;
-  max-width: 2500px; /* Set max width for the card */
+  max-width: 2500px;
+  max-height: 250px;
 }
 
-/* Hover effect for the user card */
 .user-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Expanded state style for the card */
 .user-card.expanded {
   background-color: #f0f8ff;
 }
 
-/* Header section of the card */
 .user-card-header {
   display: flex;
   align-items: center;
@@ -46,7 +51,6 @@
   margin-bottom: 15px;
 }
 
-/* Style for the user photo */
 .user-photo {
   width: 50px;
   height: 50px;
@@ -61,7 +65,6 @@
   color: #333;
 }
 
-/* User details visible when expanded */
 .user-details {
   padding-top: 10px;
   border-top: 1px solid #e0e0e0;
@@ -73,10 +76,10 @@
   margin: 8px 0;
 }
 
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 768px) {
   .user-grid {
-    grid-template-columns: 1fr; /* Single column on smaller screens */
+    grid-template-columns: 1fr;
   }
 
   .user-card {

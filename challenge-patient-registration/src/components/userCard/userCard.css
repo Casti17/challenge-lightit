@@ -1,13 +1,14 @@
 .user-card {
   display: flex;
-  flex-direction: column; /* Keep content vertical within each card */
+  flex-direction: column;
   background-color: #f9f9f9;
   border: 1px solid #ccc;
   border-radius: 10px;
   overflow: hidden;
   transition: all 0.3s ease-in-out;
   cursor: pointer;
-  max-width: 2500px; /* Set max width for the card */
+  max-width: 2500px;
+  max-height: 80px;
 }
 
 .user-card-header {
